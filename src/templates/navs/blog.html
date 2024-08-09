@@ -1,0 +1,25 @@
+{% extends './bases/base_navs.html' %}
+
+{% block body %}
+<div style="margin-bottom: 10px; margin-top: -20px;">
+    {% for noticia in noticias %}
+    <div class="card mb-3">
+        <div class="row g-0">
+            <div class="col-md-3">
+                <img src="{{ url_for('view_image', id=noticia.id) }}" class="img-fluid rounded-start" alt="Foto de noticia">
+            </div>
+            <div class="col-md-9">
+                <div class="card-body">
+                    <h5 class="card-title">{{ noticia.titulo }}</h5>
+                    <div class="d-flex">
+                        <p class="card-description" style="margin-right: 10px;">{{ noticia.fecha_noticia }}</p>
+                        <p class="card-description">{{ noticia.description }}</p>
+                    </div>
+                    <p class="card-text">{{ noticia.information }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
