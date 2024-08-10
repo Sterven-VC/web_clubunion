@@ -4,6 +4,7 @@ from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from config import config
 from werkzeug.security import generate_password_hash
+from db import get_connection
 
 import os
 from werkzeug.utils import secure_filename
@@ -27,7 +28,9 @@ from models.entities.Memoria import Memoria
 
 app = Flask(__name__)
 csrf = CSRFProtect()
-db = MySQL(app)
+#db = MySQL(app)
+db=get_connection()
+
 login_manager_app = LoginManager(app)
 
 UPLOAD_FOLDER = os.path.join(os.getcwd(), 'src', 'static', 'archivos')
@@ -336,7 +339,7 @@ def download_file(id):
 @app.route('/ver_junta/<id>', methods=['GET'])
 @login_required
 def ver_junta(id):
-    cur = db.connection.cursor()
+    cur = db.cursor()
     cur.execute("SELECT * FROM junta_directiva WHERE id = %s", (id,))
     junta_directiva = cur.fetchone()
 
@@ -391,9 +394,9 @@ def register_Memorias():
         relative_file_path = os.path.relpath(file_path, start=os.getcwd())
         
         nombre = request.form['nombre']
-        año = request.form['año']
+        anio = request.form['anio']
         
-        if not nombre or not año:
+        if not nombre or not anio:
             flash("Por favor, complete todos los campos.")
         else:
             # Obtener la junta directiva vigente
@@ -402,7 +405,7 @@ def register_Memorias():
                 flash("No hay una junta directiva vigente.")
                 return redirect(url_for('memorias'))
             
-            new_memoria = Memoria(0, nombre, año, relative_file_path, id_directiva)
+            new_memoria = Memoria(0, nombre, anio, relative_file_path, id_directiva)
             result = ModelMemoria.register_memoria(db, new_memoria)
             if result:
                 return redirect(url_for('memorias'))
@@ -420,7 +423,7 @@ def get_memoria(id):
         return jsonify({
             'id': memoria.id,
             'nombre': memoria.nombre,
-            'año': memoria.año,
+            'anio': memoria.anio,
             'ruta_pdf': memoria.ruta_pdf,
             'id_directiva': memoria.id_directiva
         })
@@ -431,10 +434,10 @@ def get_memoria(id):
 def update_Memoria():
     id = request.form['id']
     nombre = request.form['nombre']
-    año = request.form['año']
+    anio = request.form['anio']
     file = request.files.get('file', None)
 
-    if not id or not nombre or not año:
+    if not id or not nombre or not anio:
         flash("Por favor, complete todos los campos.")
     else:
         memoria = ModelMemoria.get_memoria_by_id(db, id)
@@ -455,7 +458,7 @@ def update_Memoria():
                 flash("No hay una junta directiva vigente.")
                 return redirect(url_for('memorias'))
             
-            updated_memoria = Memoria(id, nombre, año, ruta_pdf, id_directiva)
+            updated_memoria = Memoria(id, nombre, anio, ruta_pdf, id_directiva)
             result = ModelMemoria.update_memoria(db, updated_memoria)
             if result:
                 return redirect(url_for('memorias'))

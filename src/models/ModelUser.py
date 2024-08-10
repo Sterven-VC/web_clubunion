@@ -8,7 +8,7 @@ class ModelUser():
     @classmethod
     def login(self, db, user):
         try:
-            cursor = db.connection.cursor()
+            cursor = db.cursor()
             sql = """SELECT id, username, password, fullname FROM user 
                     WHERE username = '{}'""".format(user.username)
             cursor.execute(sql)
@@ -30,7 +30,7 @@ class ModelUser():
     @classmethod
     def get_by_id(self, db, id):
         try:
-            cursor = db.connection.cursor()
+            cursor = db.cursor()
             sql = "SELECT id, username, fullname FROM user WHERE id = {}".format(id)
             cursor.execute(sql)
             row = cursor.fetchone()
@@ -45,7 +45,7 @@ class ModelUser():
     def register(cls, db, user, confirm_password):
         try:
             # Verifica si el usuario ya existe en la base de datos
-            cursor = db.connection.cursor()
+            cursor = db.cursor()
             
             # Hashea la contraseña antes de guardarla en la base de datos
             hashed_password = cls.hash_password(user.password)
@@ -55,7 +55,7 @@ class ModelUser():
                     VALUES (%s, %s, %s)"""
             
             cursor.execute(sql, (user.username, hashed_password, user.fullname))
-            db.connection.commit()
+            db.commit()
             cursor.close()
             return True
         except Exception as ex:
@@ -65,7 +65,7 @@ class ModelUser():
     @classmethod
     def get_by_username(cls, db, username):
         try:
-            cursor = db.connection.cursor()
+            cursor = db.cursor()
             sql = "SELECT id, username, password, fullname FROM user WHERE username = %s"
             cursor.execute(sql ,(username,))
             row = cursor.fetchone()
@@ -90,7 +90,7 @@ class ModelUser():
     @classmethod
     def update_profile(cls, db, user):
         try:
-            cursor = db.connection.cursor()
+            cursor = db.cursor()
             
             # Construir la consulta SQL para actualizar los datos del usuario
             sql = """UPDATE user SET username = %s, fullname = %s"""
@@ -105,7 +105,7 @@ class ModelUser():
                 
             sql += " WHERE id = %s"
             cursor.execute(sql, values)
-            db.connection.commit()
+            db.commit()
             cursor.close()
             return True
         except Exception as ex:

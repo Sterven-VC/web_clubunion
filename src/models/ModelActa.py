@@ -6,7 +6,7 @@ class ModelActa:
     @classmethod
     def register_acta(cls, db, acta):
         try:
-            cursor = db.connection.cursor()
+            cursor = db.cursor()
             # Obtener la junta directiva vigente (vigencia = 1)
             sql_vigente = "SELECT id FROM junta_directiva WHERE vigencia = 1 LIMIT 1"
             cursor.execute(sql_vigente)
@@ -22,7 +22,7 @@ class ModelActa:
             sql = """INSERT INTO acta (nombre, fecha, ruta_pdf, id_junta_directiva)
                      VALUES (%s, %s, %s, %s)"""
             cursor.execute(sql, (acta.nombre, acta.fecha, acta.ruta_pdf, acta.id_junta_directiva))
-            db.connection.commit()
+            db.commit()
             cursor.close()
             return True
         except Exception as ex:
@@ -32,7 +32,7 @@ class ModelActa:
     @classmethod
     def get_all_actas(cls, db):
         try:
-            cursor = db.connection.cursor()
+            cursor = db.cursor()
             # Obtener el ID de la junta directiva vigente
             sql_vigente = "SELECT id FROM junta_directiva WHERE vigencia = 1 LIMIT 1"
             cursor.execute(sql_vigente)
@@ -65,7 +65,7 @@ class ModelActa:
     @classmethod
     def get_acta_by_id(cls, db, id):
         try:
-            cursor = db.connection.cursor()
+            cursor = db.cursor()
             sql = "SELECT * FROM acta WHERE id = %s"
             cursor.execute(sql, (id,))
             row = cursor.fetchone()
@@ -82,13 +82,13 @@ class ModelActa:
     @classmethod
     def update_acta(cls, db, acta):
         try:
-            cursor = db.connection.cursor()
+            cursor = db.cursor()
 
             # Actualizar el acta con la nueva información
             sql = """UPDATE acta SET nombre = %s, fecha = %s, ruta_pdf = %s, id_junta_directiva = %s
                      WHERE id = %s"""
             cursor.execute(sql, (acta.nombre, acta.fecha, acta.ruta_pdf, acta.id_junta_directiva, acta.id))
-            db.connection.commit()
+            db.commit()
             cursor.close()
             return True
         except Exception as ex:
@@ -98,10 +98,10 @@ class ModelActa:
     @classmethod
     def delete_acta(cls, db, id):
         try:
-            cursor = db.connection.cursor()
+            cursor = db.cursor()
             sql = "DELETE FROM acta WHERE id = %s"
             cursor.execute(sql, (id,))
-            db.connection.commit()
+            db.commit()
             cursor.close()
             return True
         except Exception as ex:
@@ -111,7 +111,7 @@ class ModelActa:
     @classmethod
     def get_vigente_junta_id(cls, db):
         try:
-            cursor = db.connection.cursor()
+            cursor = db.cursor()
             sql = "SELECT id FROM junta_directiva WHERE vigencia = 1 LIMIT 1"
             cursor.execute(sql)
             result = cursor.fetchone()

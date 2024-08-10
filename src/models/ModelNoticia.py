@@ -8,11 +8,11 @@ class ModelNoticia:
     @classmethod
     def register_noticia(cls, db, noticia):
         try:
-            cursor = db.connection.cursor()
+            cursor = db.cursor()
             sql = """INSERT INTO noticia (titulo, fecha_noticia, ruta_foto, description, information) 
                      VALUES (%s, %s, %s, %s, %s)"""
             cursor.execute(sql, (noticia.titulo, noticia.fecha_noticia, noticia.ruta_foto, noticia.description, noticia.information))
-            db.connection.commit()
+            db.commit()
             cursor.close()
             return True
         except Exception as ex:
@@ -22,7 +22,7 @@ class ModelNoticia:
     @classmethod
     def get_all_noticias(cls, db):
         try:
-            cursor = db.connection.cursor()
+            cursor = db.cursor()
             sql = "SELECT * FROM noticia"
             cursor.execute(sql)
             results = cursor.fetchall()
@@ -39,7 +39,7 @@ class ModelNoticia:
     @classmethod
     def get_noticia_by_id(cls, db, id):
         try:
-            cursor = db.connection.cursor()
+            cursor = db.cursor()
             sql = "SELECT * FROM noticia WHERE id = %s"
             cursor.execute(sql, (id,))
             row = cursor.fetchone()
@@ -54,11 +54,11 @@ class ModelNoticia:
     @classmethod
     def update_noticia(cls, db, noticia):
         try:
-            cursor = db.connection.cursor()
+            cursor = db.cursor()
             sql = """UPDATE noticia SET titulo = %s, fecha_noticia = %s, ruta_foto = %s, description = %s, information = %s
                      WHERE id = %s"""
             cursor.execute(sql, (noticia.titulo, noticia.fecha_noticia, noticia.ruta_foto, noticia.description, noticia.information, noticia.id))
-            db.connection.commit()
+            db.commit()
             cursor.close()
             return True
         except Exception as ex:
@@ -68,10 +68,10 @@ class ModelNoticia:
     @classmethod
     def delete_noticia(cls, db, id):
         try:
-            cursor = db.connection.cursor()
+            cursor = db.cursor()
             sql = "DELETE FROM noticia WHERE id = %s"
             cursor.execute(sql, (id,))
-            db.connection.commit()
+            db.commit()
             cursor.close()
             return True
         except Exception as ex:

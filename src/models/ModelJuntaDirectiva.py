@@ -5,7 +5,7 @@ class ModelJuntaDirectiva:
     @classmethod
     def register_JuntaDirectiva(cls, db, junta_directiva):
         try:
-            cursor = db.connection.cursor()
+            cursor = db.cursor()
             
             # Desactivar cualquier junta directiva activa existente
             sql_disable_current = "UPDATE junta_directiva SET vigencia = FALSE WHERE vigencia = TRUE"
@@ -24,7 +24,7 @@ class ModelJuntaDirectiva:
                      VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
             values = (junta_directiva.nombre, junta_directiva.fecha_inicio, junta_directiva.fecha_fin, junta_directiva.miembro1, junta_directiva.cargo1, junta_directiva.miembro2, junta_directiva.cargo2, junta_directiva.miembro3, junta_directiva.cargo3, junta_directiva.miembro4, junta_directiva.cargo4, junta_directiva.miembro5, junta_directiva.cargo5, junta_directiva.miembro6, junta_directiva.cargo6, junta_directiva.miembro7, junta_directiva.cargo7, junta_directiva.miembro8, junta_directiva.cargo8, junta_directiva.vigencia)
             cursor.execute(sql, values)
-            db.connection.commit()
+            db.commit()
             cursor.close()
             return True
         except Exception as ex:
@@ -35,7 +35,7 @@ class ModelJuntaDirectiva:
     @classmethod
     def get_all_juntas_directivas(cls, db):
         try:
-            cursor = db.connection.cursor()
+            cursor = db.cursor()
             sql = """
             SELECT * 
             FROM junta_directiva
@@ -56,7 +56,7 @@ class ModelJuntaDirectiva:
     @classmethod
     def get_junta_directiva_by_id(cls, db, id):
         try:
-            cursor = db.connection.cursor()
+            cursor = db.cursor()
             sql = "SELECT * FROM junta_directiva WHERE id = %s"
             cursor.execute(sql, (id,))
             row = cursor.fetchone()
@@ -71,7 +71,7 @@ class ModelJuntaDirectiva:
     @classmethod
     def update_junta_directiva(cls, db, junta_directiva):
         try:
-            cursor = db.connection.cursor()
+            cursor = db.cursor()
 
             # Desactivar cualquier junta directiva activa existente si la nueva es activa
             if junta_directiva.vigencia:
@@ -81,7 +81,7 @@ class ModelJuntaDirectiva:
             sql = """UPDATE junta_directiva SET nombre = %s, fecha_inicio = %s, fecha_fin = %s, miembro1 = %s, cargo1 = %s, miembro2 = %s, cargo2 = %s, miembro3 = %s, cargo3 = %s, miembro4 = %s, cargo4 = %s, miembro5 = %s, cargo5 = %s, miembro6 = %s, cargo6 = %s, miembro7 = %s, cargo7 = %s, miembro8 = %s, cargo8 = %s, vigencia = %s
                      WHERE id = %s"""
             cursor.execute(sql, (junta_directiva.nombre, junta_directiva.fecha_inicio, junta_directiva.fecha_fin, junta_directiva.miembro1, junta_directiva.cargo1, junta_directiva.miembro2, junta_directiva.cargo2, junta_directiva.miembro3, junta_directiva.cargo3, junta_directiva.miembro4, junta_directiva.cargo4, junta_directiva.miembro5, junta_directiva.cargo5, junta_directiva.miembro6, junta_directiva.cargo6, junta_directiva.miembro7, junta_directiva.cargo7, junta_directiva.miembro8, junta_directiva.cargo8, junta_directiva.vigencia, junta_directiva.id))
-            db.connection.commit()
+            db.commit()
             cursor.close()
             return True
         except Exception as ex:
@@ -92,10 +92,10 @@ class ModelJuntaDirectiva:
     @classmethod
     def delete_junta_directiva(cls, db, id):
         try:
-            cursor = db.connection.cursor()
+            cursor = db.cursor()
             sql = "DELETE FROM junta_directiva WHERE id = %s"
             cursor.execute(sql, (id,))
-            db.connection.commit()
+            db.commit()
             cursor.close()
             return True
         except Exception as ex:

@@ -22,8 +22,8 @@
                                     <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Nombre">
                                 </div>
                                 <div class="form-group">
-                                    <label for="año">Año</label>
-                                    <input type="text" class="form-control" id="año" name="año">
+                                    <label for="anio">Año</label>
+                                    <input type="text" class="form-control" id="anio" name="anio">
                                 </div>
                                 <div class="form-group">
                                     <label for="file">Archivo PDF</label>
@@ -72,7 +72,7 @@
                     <tr>
                         <td>{{ memoria.id }}</td>
                         <td>{{ memoria.nombre }}</td>
-                        <td>{{ memoria.año }}</td>
+                        <td>{{ memoria.anio }}</td>
                         <td>{{ memoria.id_directiva }}</td>
                         <td style="text-align: center;"><a href="{{ url_for('download_memoria', id=memoria.id) }}">Descargar PDF</a></td>
                         <td style="text-align: center; align-items: center;">
@@ -118,8 +118,8 @@
                         <input type="text" class="form-control" id="edit_nombre" name="nombre" placeholder="Nombre">
                     </div>
                     <div class="form-group">
-                        <label for="edit_año">Año</label>
-                        <input type="text" class="form-control" id="edit_año" name="año" placeholder="Año">
+                        <label for="edit_anio">Año</label>
+                        <input type="text" class="form-control" id="edit_anio" name="anio" placeholder="Año">
                     </div>
                     <div class="form-group">
                         <label for="edit_file">Archivo PDF</label>
@@ -142,7 +142,7 @@
             .then(data => {
                 document.getElementById('edit_id').value = data.id;
                 document.getElementById('edit_nombre').value = data.nombre;
-                document.getElementById('edit_año').value = data.año;
+                document.getElementById('edit_anio').value = data.anio;
                 // No es necesario cargar el campo de directiva porque se selecciona automáticamente
             });
     }
