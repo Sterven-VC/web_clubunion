@@ -19,9 +19,9 @@ class ModelActa:
             acta.id_junta_directiva = id_junta_vigente[0]
             
             # Registrar el acta con la junta directiva vigente
-            sql = """INSERT INTO acta (nombre, fecha, ruta_pdf, id_junta_directiva)
-                     VALUES (%s, %s, %s, %s)"""
-            cursor.execute(sql, (acta.nombre, acta.fecha, acta.ruta_pdf, acta.id_junta_directiva))
+            sql = """INSERT INTO acta (nombre, fecha, ruta_pdf, id_junta_directiva, asistencia_1, asistencia_2, asistencia_3, asistencia_4, asistencia_5, asistencia_6, asistencia_7, asistencia_8)
+                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+            cursor.execute(sql, (acta.nombre, acta.fecha, acta.ruta_pdf, acta.id_junta_directiva, acta.asistencia_1, acta.asistencia_2, acta.asistencia_3, acta.asistencia_4, acta.asistencia_5, acta.asistencia_6, acta.asistencia_7, acta.asistencia_8))
             db.commit()
             cursor.close()
             return True
@@ -46,7 +46,7 @@ class ModelActa:
             
             # Obtener las actas asociadas a la junta directiva vigente
             sql = """
-            SELECT id, nombre, fecha, ruta_pdf, id_junta_directiva 
+            SELECT id, nombre, fecha, ruta_pdf, id_junta_directiva, asistencia_1, asistencia_2, asistencia_3, asistencia_4, asistencia_5, asistencia_6, asistencia_7, asistencia_8
             FROM acta 
             WHERE id_junta_directiva = %s
             """
@@ -54,12 +54,12 @@ class ModelActa:
             results = cursor.fetchall()
             actas = []
             for row in results:
-                acta = Acta(row[0], row[1], row[2], row[3], row[4])
+                acta = Acta(row[0], row[1], row[2], row[3], row[4] , row[5], row[6], row[7], row[8], row[9], row[10], row[11], row[12])
                 actas.append(acta)
             cursor.close()
             return actas
         except Exception as ex:
-            flash("ERROR: " + str(ex))
+            flash("ERROR:  mostrar" + str(ex))
             return []
             
     @classmethod
@@ -71,7 +71,7 @@ class ModelActa:
             row = cursor.fetchone()
             cursor.close()
             if row:
-                return Acta(row[0], row[1], row[2], row[3], row[4])
+                return Acta(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11], row[12])
             else:
                 flash("Acta no encontrada.")
                 return None
@@ -85,9 +85,18 @@ class ModelActa:
             cursor = db.cursor()
 
             # Actualizar el acta con la nueva información
-            sql = """UPDATE acta SET nombre = %s, fecha = %s, ruta_pdf = %s, id_junta_directiva = %s
-                     WHERE id = %s"""
-            cursor.execute(sql, (acta.nombre, acta.fecha, acta.ruta_pdf, acta.id_junta_directiva, acta.id))
+            sql = """UPDATE acta 
+                    SET nombre = %s, fecha = %s, ruta_pdf = %s, id_junta_directiva = %s, 
+                        asistencia_1 = %s, asistencia_2 = %s, asistencia_3 = %s, 
+                        asistencia_4 = %s, asistencia_5 = %s, asistencia_6 = %s, 
+                        asistencia_7 = %s, asistencia_8 = %s
+                    WHERE id = %s"""
+            cursor.execute(sql, (
+                acta.nombre, acta.fecha, acta.ruta_pdf, acta.id_junta_directiva,
+                acta.asistencia_1, acta.asistencia_2, acta.asistencia_3,
+                acta.asistencia_4, acta.asistencia_5, acta.asistencia_6,
+                acta.asistencia_7, acta.asistencia_8, acta.id
+            ))
             db.commit()
             cursor.close()
             return True
@@ -125,3 +134,33 @@ class ModelActa:
             flash("ERROR: " + str(ex))
             return None
 
+class ModelActa:
+    @classmethod
+    def get_actas_with_cuorum_status(cls, db):
+        try:
+            cursor = db.cursor()
+            sql = """SELECT id, nombre, fecha, asistencia_1, asistencia_2, asistencia_3, asistencia_4, asistencia_5, asistencia_6, asistencia_7, asistencia_8
+                     FROM acta"""
+            cursor.execute(sql)
+            actas = cursor.fetchall()
+            cursor.close()
+
+            # Determinar cuórum
+            cuorum_status = []
+            for acta in actas:
+                asistencia_count = sum([acta[i] for i in range(3, 11)])  # Contar las asistencias
+                if asistencia_count > 5:
+                    status = "Cuórum"
+                else:
+                    status = "No cuórum"
+                cuorum_status.append({
+                    'id': acta[0],
+                    'nombre': acta[1],
+                    'fecha': acta[2],
+                    'asistencia': asistencia_count,
+                    'status': status
+                })
+            return cuorum_status
+        except Exception as ex:
+            print("ERROR:", ex)
+            return []

@@ -223,19 +223,31 @@ def delete_JuntaDirectiva(id):
 @app.route('/actas', methods=['GET'])
 @login_required
 def actas():
-    actas = ModelActa.get_all_actas(db)
-    return render_template('navs/actas.html', actas=actas)
+    actas = ModelActa.get_actas_with_cuorum_status(db)
+    junta_vigente = ModelJuntaDirectiva.get_junta_directiva_vigente(db)
+    # Crear la lista de miembros
+    miembros = [
+        {'nombre': junta_vigente.miembro1, 'cargo': junta_vigente.cargo1},
+        {'nombre': junta_vigente.miembro2, 'cargo': junta_vigente.cargo2},
+        {'nombre': junta_vigente.miembro3, 'cargo': junta_vigente.cargo3},
+        {'nombre': junta_vigente.miembro4, 'cargo': junta_vigente.cargo4},
+        {'nombre': junta_vigente.miembro5, 'cargo': junta_vigente.cargo5},
+        {'nombre': junta_vigente.miembro6, 'cargo': junta_vigente.cargo6},
+        {'nombre': junta_vigente.miembro7, 'cargo': junta_vigente.cargo7},
+        {'nombre': junta_vigente.miembro8, 'cargo': junta_vigente.cargo8}
+    ]
+    return render_template('navs/actas.html', actas=actas, miembros=miembros)
 
 @app.route('/register_Actas', methods=['POST'])
 @login_required
 def register_Actas():
     if 'file' not in request.files:
         flash('No file part')
-        return redirect(request.url)
+        return redirect(url_for('actas'))
     file = request.files['file']
     if file.filename == '':
-        flash('No selected file')
-        return redirect(request.url)
+        flash('No select file')
+        return redirect(url_for('actas'))
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         extension = os.path.splitext(filename)[1]
@@ -247,18 +259,27 @@ def register_Actas():
         
         nombre = request.form['nombre']
         fecha = request.form['fecha']  # Fecha en formato YYYY-MM-DD
-        
+        asistencia_1 = request.form.get('asistencia_1') == 'on'
+        asistencia_2 = request.form.get('asistencia_2') == 'on'
+        asistencia_3 = request.form.get('asistencia_3') == 'on'
+        asistencia_4 = request.form.get('asistencia_4') == 'on'
+        asistencia_5 = request.form.get('asistencia_5') == 'on'
+        asistencia_6 = request.form.get('asistencia_6') == 'on'
+        asistencia_7 = request.form.get('asistencia_7') == 'on'
+        asistencia_8 = request.form.get('asistencia_8') == 'on'
+
         # Obtener la junta directiva vigente
         id_junta_directiva = ModelActa.get_vigente_junta_id(db)
         
         if not nombre or not fecha or not id_junta_directiva:
             flash("Por favor, complete todos los campos.")
         else:
-            new_acta = Acta(0, nombre, fecha, relative_file_path, id_junta_directiva)
+            new_acta = Acta(0, nombre, fecha, relative_file_path, id_junta_directiva, asistencia_1, asistencia_2, asistencia_3, asistencia_4, asistencia_5, asistencia_6, asistencia_7, asistencia_8)
             result = ModelActa.register_acta(db, new_acta)
             if result:
                 return redirect(url_for('actas'))
             else:
+                flash("Por favor, complete todos los campos2.")
                 return redirect(url_for('actas'))
     return render_template('navs/actas.html')
 
@@ -270,17 +291,37 @@ def get_acta(id):
         return jsonify({
             'id': acta.id,
             'nombre': acta.nombre,
-            'fecha': str(acta.fecha)
+            'fecha': str(acta.fecha),
+            'asistencia_1': acta.asistencia_1,
+            'asistencia_2': acta.asistencia_2,
+            'asistencia_3': acta.asistencia_3,
+            'asistencia_4': acta.asistencia_4,
+            'asistencia_5': acta.asistencia_5,
+            'asistencia_6': acta.asistencia_6,
+            'asistencia_7': acta.asistencia_7,
+            'asistencia_8': acta.asistencia_8
         })
     return jsonify({'error': 'Acta no encontrada'}), 404
 
 @app.route('/update_Acta', methods=['POST'])
 @login_required
 def update_Acta():
-    id = request.form['id']
-    nombre = request.form['nombre']
-    fecha = request.form['fecha']  # Fecha en formato YYYY-MM-DD
+    id = request.form.get('id')
+    nombre = request.form.get('nombre')
+    fecha = request.form.get('fecha')  # Fecha en formato YYYY-MM-DD
     file = request.files.get('file', None)
+    
+    # Validación de asistencia
+    asistencia = {
+        'asistencia_1': request.form.get('asistencia_1') == 'on',
+        'asistencia_2': request.form.get('asistencia_2') == 'on',
+        'asistencia_3': request.form.get('asistencia_3') == 'on',
+        'asistencia_4': request.form.get('asistencia_4') == 'on',
+        'asistencia_5': request.form.get('asistencia_5') == 'on',
+        'asistencia_6': request.form.get('asistencia_6') == 'on',
+        'asistencia_7': request.form.get('asistencia_7') == 'on',
+        'asistencia_8': request.form.get('asistencia_8') == 'on'
+    }
 
     if not id or not nombre or not fecha:
         flash("Por favor, complete todos los campos.")
@@ -300,7 +341,13 @@ def update_Acta():
             # Obtener la junta directiva vigente
             id_junta_directiva = ModelActa.get_vigente_junta_id(db)
             
-            updated_acta = Acta(id, nombre, fecha, ruta_pdf, id_junta_directiva)
+            # Actualizar la acta
+            updated_acta = Acta(
+                id, nombre, fecha, ruta_pdf, id_junta_directiva,
+                asistencia['asistencia_1'], asistencia['asistencia_2'], asistencia['asistencia_3'],
+                asistencia['asistencia_4'], asistencia['asistencia_5'], asistencia['asistencia_6'],
+                asistencia['asistencia_7'], asistencia['asistencia_8']
+            )
             result = ModelActa.update_acta(db, updated_acta)
             if result:
                 return redirect(url_for('actas'))
@@ -308,6 +355,7 @@ def update_Acta():
                 flash("Error al actualizar el acta.")
                 return redirect(url_for('actas'))
     return render_template('navs/actas.html')
+
 
 @app.route('/delete_Acta/<int:id>', methods=['POST'])
 @login_required
@@ -597,28 +645,7 @@ def delete_noticia(id):
         flash("Error al eliminar la noticia.")
     return render_template('navs/noticias.html')
 
-@app.route('/blogs')
-@login_required
-def blogs():
-    noticias = ModelNoticia.get_all_noticias(db)
-    return render_template('navs/blog.html', noticias=noticias)
 
-@app.route('/view_image/<int:id>', methods=['GET'])
-@login_required
-def view_image(id):
-    noticia = ModelNoticia.get_noticia_by_id(db, id)
-    if noticia:
-        file_path = os.path.join(os.getcwd(), noticia.ruta_foto)
-        print (file_path)
-        if os.path.exists(file_path):
-            return send_file(file_path, mimetype='image/jpeg')
-        else:
-            flash("Imagen no encontrada.")
-            return redirect(url_for('blogs'))
-    else:
-        flash("Noticia no encontrada.")
-        return redirect(url_for('blogs'))
-    
 @app.route('/profile', methods=['GET'])
 @login_required
 def profile():

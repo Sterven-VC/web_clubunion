@@ -101,3 +101,15 @@ class ModelJuntaDirectiva:
         except Exception as ex:
             flash("ERROR BORRAR: " + str(ex))
             return False
+
+
+    @classmethod
+    def get_junta_directiva_vigente(cls, db):
+        cursor = db.cursor()
+        sql = "SELECT * FROM junta_directiva WHERE vigencia = 1 LIMIT 1"
+        cursor.execute(sql)
+        result = cursor.fetchone()
+        cursor.close()
+        if result:
+            return JuntaDirectiva(*result)
+        return None
