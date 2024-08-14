@@ -27,7 +27,7 @@ from models.entities.Memoria import Memoria
 
 
 app = Flask(__name__)
-csrf = CSRFProtect()
+csrf = CSRFProtect(app)
 #db = MySQL(app)
 db=get_connection()
 
@@ -692,9 +692,9 @@ def status_401(error):
 def status_404(error):
     return "<h1>Página no encontrada</h1>", 404
 
+app.config.from_object(config['development'])
 
 if __name__ == '__main__':
-    app.config.from_object(config['development'])
     csrf.init_app(app)
     app.register_error_handler(401, status_401)
     app.register_error_handler(404, status_404)
